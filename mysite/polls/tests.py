@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
-from .models import Question
+from .models import Question, Choice
 
 
 def create_question(question_text, days):
@@ -16,6 +16,13 @@ def create_question(question_text, days):
     time = timezone.now() + datetime.timedelta(days=days)
     return Question.objects.create(question_text=question_text,
                                    pub_date=time)
+
+def create_choice(choice_text, question):
+    """
+    Creates a choice for the given Question.
+    """
+    return Choice.objects.create(choice_text=choice_text,
+                                   question=question)
 
 class QuestionViewTests(TestCase):
     def test_index_view_with_no_questions(self):
@@ -150,3 +157,43 @@ class QuestionIndexResultTests(TestCase):
                                    args=(past_question.id,)))
         self.assertContains(response, past_question.question_text,
                             status_code=200)
+
+    def test_results_view_with_a_past_question_and_two_choices(self):
+        """
+        Questions with a pub_date in the past should be displayed on the
+        index page. With 2 choices, with one vote
+        """
+        past_question = create_question(question_text="Past question.", days=-30)
+        choice_1 = create_choice(choice_text="Choice 1", question=past_question)
+        choice_2 = create_choice(choice_text="Choice 2", question=past_question)
+        choice_1.votes += 1
+        choice_1.save()
+        response = self.client.get(reverse('polls:results',
+                                   args=(past_question.id,)))
+        self.assertContains(response, past_question.question_text,
+                            status_code=200)
+        self.assertContains(response, choice_1.choice_text,
+                            status_code=200)
+
+class VoteTest(TestCase):
+    def test_vote_with_a_past_question(self):
+        """
+        Questions with a pub_date in the past should be displayed on the
+        index page. With 2 choices, vote for one
+        """
+        past_question = create_question(question_text="Past question.", days=-30)
+        choice_1 = create_choice(choice_text="Choice 1", question=past_question)
+        choice_2 = create_choice(choice_text="Choice 2", question=past_question)
+
+        response = self.client.post(reverse('polls:vote',
+                                   args=(past_question.id,)),
+                                   {'choice': choice_1.id})
+        result = self.assertRedirects(response,
+                                   reverse('polls:results',
+                                           args=(past_question.id,)))
+
+        question = Question.objects.get(id=past_question.id)
+        selected_choice = question.choice_set.get(pk=choice_1.id)
+        self.assertEqual(selected_choice.votes, 1)
+        selected_choice = question.choice_set.get(pk=choice_2.id)
+        self.assertEqual(selected_choice.votes, 0)
