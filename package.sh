@@ -1,4 +1,5 @@
 #!/bin/bash
-cp mysite/polls django-polls/polls
+cp -R mysite/polls django-polls/polls
 cd django-polls
 python setup.py sdist
+cd ..
