@@ -39,3 +39,14 @@ or, if already installed:
 4. Run following command inside django-polls
 
         python setup.py sdist
+
+# Future packaging...
+
+1. Update version in django-polls/setup.py
+2. just Run
+
+        ./package.sh
+
+# Install as library to use in another application
+
+        pip install --user django-polls/dist/django-polls-0.1.tar.gz
