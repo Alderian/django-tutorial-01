@@ -1,0 +1,14 @@
+#   A basic travis.yml boilerplate for Django projects
+language: python
+
+python:
+  - 3.4
+
+env:
+  - DJANGO=1.9
+
+install:
+  - pip3 install django==$DJANGO --quiet
+
+script:
+  - python3 manage.py test
