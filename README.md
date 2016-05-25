@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/Alderian/django-tutorial.svg?branch=master)](https://travis-ci.org/Alderian/django-tutorial)
+[![Build Status](https://travis-ci.org/Alderian/django-tutorial.svg?branch=master)](https://travis-ci.org/Alderian/django-tutorial) [![codecov](https://codecov.io/gh/Alderian/django-tutorial/branch/master/graph/badge.svg)](https://codecov.io/gh/Alderian/django-tutorial)
+
 
 # django-tutorial
 
