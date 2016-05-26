@@ -197,3 +197,21 @@ class VoteTest(TestCase):
         self.assertEqual(selected_choice.votes, 1)
         selected_choice = question.choice_set.get(pk=choice_2.id)
         self.assertEqual(selected_choice.votes, 0)
+
+    def test_vote_with_a_past_question_wrong_choice_id_selected(self):
+        """
+        Questions with a pub_date in the past should be displayed on the
+        index page. With 2 choices, vote for one
+        """
+        past_question = create_question(question_text="Past question.", days=-30)
+        choice_1 = create_choice(choice_text="Choice 1", question=past_question)
+        choice_2 = create_choice(choice_text="Choice 2", question=past_question)
+
+        response = self.client.post(reverse('polls:vote',
+                                   args=(past_question.id,)),
+                                   {'choice': '3'})
+
+        self.assertContains(response, past_question.question_text,
+                            status_code=200)
+        self.assertContains(response, "You didn&#39;t select a choice",
+                            status_code=200)
