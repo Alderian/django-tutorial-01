@@ -215,3 +215,22 @@ class VoteTest(TestCase):
                             status_code=200)
         self.assertContains(response, "You didn&#39;t select a choice",
                             status_code=200)
+
+    def test_detail_view_with_a_past_question_with_two_choices(self):
+        """
+        Choices from Question with a pub_date in the past should be displayed on
+        the the detail page.
+        """
+        past_question = create_question(question_text="Past question.", days=-30)
+        choice_1 = create_choice(choice_text="Choice 1", question=past_question)
+        choice_2 = create_choice(choice_text="Choice 2", question=past_question)
+
+        response = self.client.get(reverse('polls:detail',
+                                   args=(past_question.id,)))
+
+        self.assertContains(response, past_question.question_text,
+                            status_code=200)
+        self.assertQuerysetEqual(
+            response.context['question'].choice_set.all().order_by('id'),
+            ['<Choice: Choice 1>', '<Choice: Choice 2>']
+        )
